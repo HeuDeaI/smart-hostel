@@ -4,6 +4,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { white, textLightGray } from "../../../constants/Colors";
 import { Button, Avatar, TouchableRipple, Switch } from "react-native-paper";
 import { useTranslation } from "../../../i18n/I18nProvider";
+
 import { primaryBlue, textDarkGray } from "../../../constants/Colors";
 import axios from "axios";
 import { baseUrl } from "../../../config/BaseUrl";
@@ -12,8 +13,7 @@ import { AuthContext } from "../../../context/AuthContext";
 
 const Dashboard = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
-  const [lightOn, setLightOn] = useState(false);
-  const [doorLocked, setDoorLocked] = useState(true);
+ 
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -106,17 +106,7 @@ const Dashboard = ({ navigation }) => {
     });
   }, []);
 
-  const toggleLight = () => {
-    setLightOn(!lightOn);
-    // Здесь будет API запрос на управление светом
-  };
-
-  const toggleDoor = () => {
-    setDoorLocked(!doorLocked);
-    // Здесь будет API запрос на управление дверью
-    // light_on
-    // 
-  };
+  
 
   return (
     <ScrollView
@@ -264,28 +254,11 @@ const Dashboard = ({ navigation }) => {
             </TouchableRipple>
           </View>
           <View style={styles.quickButtons}>
-          <TouchableRipple
-              onPress={() => navigation.navigate("UserHostelRulesDashboard")}
-              style={styles.dashboardCard}
-            >
-              <View
-                style={{
-                  alignItems: "center",
-                  paddingHorizontal: 15,
-                  paddingVertical: 20,
-                }}
-              >
-                <Image
-                  source={require("../../../../assets/images/control_electricity.png")}
-                  style={styles.cardImg}
-                />
-                <Text style={styles.cardText}>Управление светом</Text>
-              </View>
-            </TouchableRipple>
+          
             
             
             <TouchableRipple
-              onPress={() => navigation.navigate("UserHostelRulesDashboard")}
+              onPress={() => navigation.navigate("UserControlRoom")}
               style={styles.dashboardCard}
             >
               <View
@@ -299,7 +272,7 @@ const Dashboard = ({ navigation }) => {
                   source={require("../../../../assets/images/access_control.png")}
                   style={styles.cardImg}
                 />
-                <Text style={styles.cardText}>Управление доступом</Text>
+                <Text style={styles.cardText}>Управление комнатой</Text>
               </View>
             </TouchableRipple>
           </View>
@@ -321,7 +294,7 @@ const Dashboard = ({ navigation }) => {
                   source={require("../../../../assets/images/payment_receipts.png")}
                   style={styles.cardImg}
                 />
-                <Text style={styles.cardText}>Payment Receipts</Text>
+                <Text style={styles.cardText}>Подтвердить оплату</Text>
               </View>
             </TouchableRipple>
 
@@ -340,7 +313,7 @@ const Dashboard = ({ navigation }) => {
                   source={require("../../../../assets/images/complains.png")}
                   style={[styles.cardImg, { marginVertical: 10 }]}
                 />
-                <Text style={styles.cardText}>Complains</Text>
+                <Text style={styles.cardText}>Жалобы</Text>
               </View>
             </TouchableRipple>
           </View>
@@ -361,7 +334,7 @@ const Dashboard = ({ navigation }) => {
                   source={require("../../../../assets/images/announcements.png")}
                   style={[styles.cardImg, { marginVertical: 10 }]}
                 />
-                <Text style={styles.cardText}>Announcements</Text>
+                <Text style={styles.cardText}>Объявления</Text>
               </View>
             </TouchableRipple>
 
@@ -380,47 +353,9 @@ const Dashboard = ({ navigation }) => {
                   source={require("../../../../assets/images/hostel_rules.png")}
                   style={styles.cardImg}
                 />
-                <Text style={styles.cardText}>Hostel Rules</Text>
+                <Text style={styles.cardText}>Правила</Text>
               </View>
             </TouchableRipple>
-
-            
-          </View>
-
-         
-
-          {/* Блок управления */}
-          <View style={styles.controlsContainer}>
-            <Text style={styles.sectionTitle}>
-              Управление комнатой:
-            </Text>
-            <View style={styles.controlsGrid}>
-              <View style={styles.controlCard}>
-                <Image
-                  source={require("../../../../assets/images/control_electricity.png")}
-                  style={styles.controlIcon}
-                />
-                <Text style={styles.controlLabel}>Освещение</Text>
-                <Switch
-                  value={lightOn}
-                  onValueChange={toggleLight}
-                  color={primaryBlue}
-                />
-              </View>
-              
-              <View style={styles.controlCard}>
-                <Image
-                  source={require("../../../../assets/images/door.png")}
-                  style={styles.controlIcon}
-                />
-                <Text style={styles.controlLabel}>Дверь</Text>
-                <Switch
-                  value={!doorLocked}
-                  onValueChange={toggleDoor}
-                  color={primaryBlue}
-                />
-              </View>
-            </View>
           </View>
         </View>
       </View>

@@ -5,6 +5,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import Dashboard from "../../screens/app/user/Dashboard";
 import Rooms from "../../screens/app/user/Rooms";
+import ControlRoom from "../../screens/app/user/ControlRoom"; 
 import Announcements from "../../screens/app/user/Announcements";
 import Complains from "../../screens/app/user/Complains";
 import Settings from "../../screens/app/user/Settings";
@@ -44,8 +45,12 @@ export const UserDashboard = () => {
         headerShown: false,
       }}
     >
+
+
+
       <DashboardStack.Screen name="UserHome" component={Dashboard} />
       <DashboardStack.Screen name="UserRoomsDashboard" component={UserRooms} />
+      <DashboardStack.Screen name="UserControlRoom" component={ControlRoom} />
       <DashboardStack.Screen
         name="UserRoomsAcceptanceDashboard"
         component={RoomAcceptance}
