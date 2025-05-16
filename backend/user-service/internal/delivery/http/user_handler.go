@@ -90,7 +90,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully", "user": user})
 }
 
-func (h *UserHandler) AuthenticateUser(c *gin.Context) {
+func (h *UserHandler) Login(c *gin.Context) {
 	var credentials struct {
 		Username string `json:"username"`
 		Password string `json:"password"`

@@ -30,8 +30,8 @@ func main() {
 
 	go func() {
 		grpcServer := grpc.NewGRPCServer(userService)
-		log.Println("gRPC server starting on :8081")
-		if err := grpcServer.Start("8081"); err != nil {
+		log.Println("gRPC server starting on :8082")
+		if err := grpcServer.Start("8082"); err != nil {
 			log.Fatalf("gRPC server failed: %v", err)
 		}
 	}()

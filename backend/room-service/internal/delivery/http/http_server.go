@@ -18,9 +18,12 @@ func NewHTTPServer(roomService services.RoomService) *HTTPServer {
 
 	roomHandler := NewRoomHandler(roomService)
 
+	authGroup := server.router.Group("/")
+	authGroup.Use(JWTMiddleware())
+	authGroup.POST("/rooms/book", roomHandler.BookRoom)
+	authGroup.POST("/rooms/release", roomHandler.ReleaseRoom)
+
 	server.router.GET("/rooms", roomHandler.GetRooms)
-	server.router.POST("/rooms/book", roomHandler.BookRoom)
-	server.router.POST("/rooms/release", roomHandler.ReleaseRoom)
 	server.router.GET("/ws", roomHandler.HandleWebSocket)
 
 	return server

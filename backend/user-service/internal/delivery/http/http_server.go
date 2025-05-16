@@ -22,6 +22,7 @@ func NewHTTPServer(userService services.UserService) *HTTPServer {
 	server.router.GET("/users/:id", userHandler.GetUserByID)
 	server.router.PUT("/users/:id", userHandler.UpdateUser)
 	server.router.DELETE("/users/:id", userHandler.DeleteUser)
+	server.router.POST("/login", userHandler.Login)
 	server.router.GET("/ws", userHandler.HandleWebSocket)
 
 	return server

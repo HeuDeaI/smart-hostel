@@ -25,8 +25,8 @@ func main() {
 
 	go func() {
 		httpServer := http.NewHTTPServer(roomService)
-		log.Println("HTTP server starting on :8080")
-		if err := httpServer.Start("8080"); err != nil {
+		log.Println("HTTP server starting on :8090")
+		if err := httpServer.Start("8090"); err != nil {
 			log.Fatalf("HTTP server failed: %v", err)
 		}
 	}()
