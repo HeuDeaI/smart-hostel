@@ -21,7 +21,6 @@ message GetRoomsResponse {
 message Room {
   uint64 id = 1;
   int64 number = 2;
-  bool is_booked = 3;
 }
 
 message BookRoomRequest {

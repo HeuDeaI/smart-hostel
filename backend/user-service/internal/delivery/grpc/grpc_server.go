@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 type GRPCServer struct {
@@ -42,13 +43,22 @@ func (s *GRPCServer) Start(port string) error {
 }
 
 func (s *GRPCServer) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.UserResponse, error) {
-	user := &models.User{Username: req.GetUsername()}
+	user := &models.User{
+		Username: req.GetUsername(),
+		Email:    req.GetEmail(),
+		Phone:    req.GetPhone(),
+	}
 	err := s.userService.CreateUser(user)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to create user")
 	}
 
-	return &pb.UserResponse{Id: uint32(user.ID), Username: user.Username}, nil
+	return &pb.UserResponse{
+		Id:       uint32(user.ID),
+		Username: user.Username,
+		Email:    user.Email,
+		Phone:    user.Phone,
+	}, nil
 }
 
 func (s *GRPCServer) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.UserResponse, error) {
@@ -57,7 +67,12 @@ func (s *GRPCServer) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.U
 		return nil, status.Error(codes.NotFound, "user not found")
 	}
 
-	return &pb.UserResponse{Id: uint32(user.ID), Username: user.Username}, nil
+	return &pb.UserResponse{
+		Id:       uint32(user.ID),
+		Username: user.Username,
+		Email:    user.Email,
+		Phone:    user.Phone,
+	}, nil
 }
 
 func (s *GRPCServer) GetAllUsers(ctx context.Context, req *pb.GetAllUsersRequest) (*pb.GetAllUsersResponse, error) {
@@ -68,20 +83,35 @@ func (s *GRPCServer) GetAllUsers(ctx context.Context, req *pb.GetAllUsersRequest
 
 	var userResponses []*pb.UserResponse
 	for _, user := range users {
-		userResponses = append(userResponses, &pb.UserResponse{Id: uint32(user.ID), Username: user.Username})
+		userResponses = append(userResponses, &pb.UserResponse{
+			Id:       uint32(user.ID),
+			Username: user.Username,
+			Email:    user.Email,
+			Phone:    user.Phone,
+		})
 	}
 
 	return &pb.GetAllUsersResponse{Users: userResponses}, nil
 }
 
 func (s *GRPCServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UserResponse, error) {
-	user := &models.User{ID: uint(req.GetId()), Username: req.GetUsername()}
+	user := &models.User{
+		Model:    gorm.Model{ID: uint(req.GetId())},
+		Username: req.GetUsername(),
+		Email:    req.GetEmail(),
+		Phone:    req.GetPhone(),
+	}
 	err := s.userService.UpdateUser(user)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to update user")
 	}
 
-	return &pb.UserResponse{Id: uint32(user.ID), Username: user.Username}, nil
+	return &pb.UserResponse{
+		Id:       uint32(user.ID),
+		Username: user.Username,
+		Email:    user.Email,
+		Phone:    user.Phone,
+	}, nil
 }
 
 func (s *GRPCServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {

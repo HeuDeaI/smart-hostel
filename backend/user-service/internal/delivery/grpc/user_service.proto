@@ -14,6 +14,8 @@ service UserService {
 
 message CreateUserRequest {
     string username = 1;
+    string email = 2;
+    string phone = 3;
 }
 
 message GetUserRequest {
@@ -25,6 +27,8 @@ message GetAllUsersRequest {}
 message UpdateUserRequest {
     uint32 id = 1;
     string username = 2;
+    string email = 3;
+    string phone = 4;
 }
 
 message DeleteUserRequest {
@@ -34,6 +38,8 @@ message DeleteUserRequest {
 message UserResponse {
     uint32 id = 1;
     string username = 2;
+    string email = 3;
+    string phone = 4;
 }
 
 message GetAllUsersResponse {

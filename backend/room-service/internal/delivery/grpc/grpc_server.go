@@ -49,9 +49,8 @@ func (s *GRPCServer) GetRooms(ctx context.Context, req *pb.GetRoomsRequest) (*pb
 	pbRooms := make([]*pb.Room, len(rooms))
 	for i, r := range rooms {
 		pbRooms[i] = &pb.Room{
-			Id:       uint64(r.ID),
-			Number:   int64(r.Number),
-			IsBooked: r.IsBooked,
+			Id:     uint64(r.ID),
+			Number: int64(r.Number),
 		}
 	}
 
