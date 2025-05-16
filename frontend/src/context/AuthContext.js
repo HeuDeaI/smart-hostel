@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
     password: "12345", // Пароль (обязательное)
     batch: "1", // Группа/курс
     faculty: "rfict", // Факультет
-    member_type: "student", // Тип пользователя (обязательное, по умолчанию "student")
+    member_type: "admin", // Тип пользователя (обязательное, по умолчанию "student")
     mobile_no: "8033434343", // Номер телефона (обязательное)
     registration_no: "test", // Регистрационный номер
     gender: "male", // Пол (обязательное)

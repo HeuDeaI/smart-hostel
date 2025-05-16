@@ -1,6 +1,7 @@
 import { View, Text, RefreshControl, FlatList, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "../../../i18n/I18nProvider";
 import {
    black,
    darkGreen,
@@ -16,16 +17,22 @@ import {
    TouchableRipple,
    TextInput,
    Avatar,
+   Portal,
+   Modal,
 } from "react-native-paper";
-import DropDown from "react-native-paper-dropdown";
-import { useCallback, useState } from "react";
+import { DatePickerInput } from 'react-native-paper-dates';
+import { useCallback, useState, useRef } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 
 const Rooms = ({ navigation }) => {
    const [refreshing, setRefreshing] = useState(false);
-   const [showFaculty, setShowFaculty] = useState(false);
-   const [showBatch, setShowBatch] = useState(false);
+   const [roommateFields, setRoommateFields] = useState([]);
+   const [isModalVisible, setIsModalVisible] = useState(false);
+   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+   const formikRef = useRef();
+   const [formValues, setFormValues] = useState(null);
+   const { t } = useTranslation();
 
    const data = require("../../../data/dummyData.json");
 
@@ -36,36 +43,124 @@ const Rooms = ({ navigation }) => {
       }, 1500);
    }, []);
 
+   const updateRoommateFields = useCallback((amount) => {
+      const count = Number(amount);
+      if (count > 1 && count <= 4) {
+         setRoommateFields(Array(count - 1).fill(''));
+      } else {
+         setRoommateFields([]);
+      }
+   }, []);
+
    const handleRequestRoom = (values) => {
       //request room logic
       console.log(values);
+      // После успешной отправки очищаем форму
+      if (formikRef.current) {
+         formikRef.current.resetForm();
+         updateRoommateFields(0);
+         setIsConfirmModalVisible(true)
+      }
+      setIsModalVisible(false);
+   };
+
+   const handleSubmitWithConfirmation = (values) => {
+      setFormValues(values);
+      setIsModalVisible(true);
    };
 
    const requestRoomSchema = Yup.object({
-      faculty: Yup.string(),
-      batch: Yup.string(),
-      second_member: Yup.string().email("Enter a valid email!"),
-      third_member: Yup.string().email("Enter a valid email!"),
-      fourth_member: Yup.string().email("Enter a valid email!"),
-      reason: Yup.string(),
+      amount_of_people: Yup.number()
+         .positive('Must be positive')
+         .min(1, 'Minimum 1 person allowed')
+         .max(4, 'Maximum 4 people allowed')
+         .required("Amount of people is required"),
+      roommates: Yup.array().of(
+         Yup.string().email("Enter a valid email!")
+      ).test('len', 'Must add all roommates', function(val) {
+         const amount = this.parent.amount_of_people;
+         return val.length === (Number(amount) - 1);
+      }),
+      reason: Yup.string().required("Reason is required"),
+      startDate: Yup.date().required("Start date is required"),
+      endDate: Yup.date()
+         .required("End date is required")
+         .min(Yup.ref('startDate'), "End date can't be before start date"),
    });
 
    return (
       <View style={{ flex: 1, backgroundColor: white, minHeight: "100%" }}>
+         
+         <Portal>
+            <Modal
+               visible={isConfirmModalVisible}
+               onDismiss={() => setIsConfirmModalVisible(false)}
+               contentContainerStyle={styles.modalContainer}
+            >
+               <Text style={styles.modalTitle}>Успешно!</Text>
+               <Text style={styles.modalText}>
+                  Ваши данные успешно отправлены.
+               </Text>
+               <View style={styles.modalButtons}>
+                  <Button
+                     mode="outlined"
+                     onPress={() => setIsConfirmModalVisible(false)}
+                     style={styles.modalButton}
+                     labelStyle={{ color: primaryBlue }}
+                  >
+                     Закрыть
+                  </Button>
+                  
+               </View>
+            </Modal>
+         </Portal>
+         
+         <Portal>
+            <Modal
+               visible={isModalVisible}
+               onDismiss={() => setIsModalVisible(false)}
+               contentContainerStyle={styles.modalContainer}
+            >
+               <Text style={styles.modalTitle}>Подтверждение бронирования</Text>
+               <Text style={styles.modalText}>
+                  Вы уверены, что хотите отправить запрос на бронирование?
+               </Text>
+               <View style={styles.modalButtons}>
+                  <Button
+                     mode="outlined"
+                     onPress={() => setIsModalVisible(false)}
+                     style={styles.modalButton}
+                     labelStyle={{ color: primaryBlue }}
+                  >
+                     Отмена
+                  </Button>
+                  <Button
+                     mode="contained"
+                     onPress={() => handleRequestRoom(formValues)}
+                     style={[styles.modalButton, { marginLeft: 10 }]}
+                     buttonColor={primaryBlue}
+                  >
+                     Подтвердить
+                  </Button>
+               </View>
+            </Modal>
+         </Portal>
+
          <View style={styles.container}>
             <View style={styles.contentContainer}>
-               <Text style={styles.reqRoomTitle}>Request a Room</Text>
+               <Text style={styles.reqRoomTitle}>{t("user.booking.newBooking")}</Text>
                <View style={styles.formContainer}>
                   <Formik
+                     innerRef={formikRef}
                      validationSchema={requestRoomSchema}
                      initialValues={{
-                        faculty: "",
-                        batch: "",
-                        second_member: "",
-                        third_member: "",
-                        fourth_member: "",
+                        amount_of_people: "",
+                        roommates: [],
+                        reason: "",
+                        startDate: undefined,
+                        endDate: undefined,
                      }}
-                     onSubmit={(values) => handleRequestRoom(values)}
+                     onSubmit={handleSubmitWithConfirmation}
                   >
                      {({
                         handleChange,
@@ -74,143 +169,107 @@ const Rooms = ({ navigation }) => {
                         values,
                         errors,
                         touched,
+                        setFieldValue,
                      }) => {
                         return (
                            <View style={styles.form}>
-                              <DropDown
-                                 mode="outlined"
-                                 label="Faculty"
-                                 visible={showFaculty}
-                                 showDropDown={() => setShowFaculty(true)}
-                                 onDismiss={() => setShowFaculty(false)}
-                                 list={[
-                                    {
-                                       label: "Engineering",
-                                       value: "engineering",
-                                    },
-                                    {
-                                       label: "Technology",
-                                       value: "technology",
-                                    },
-                                    {
-                                       label: "Agriculture",
-                                       value: "agriculture",
-                                    },
-                                 ]}
-                                 value={values.faculty}
-                                 onBlur={handleBlur("faculty")}
-                                 setValue={handleChange("faculty")}
-                                 activeColor={primaryBlue}
-                                 inputProps={{
-                                    outlineColor: lightGray,
-                                    right: (
-                                       <TextInput.Icon icon={"chevron-down"} />
-                                    ),
-                                 }}
-                              />
-                              {errors.faculty && touched.faculty ? (
-                                 <Text style={styles.errorText}>
-                                    {errors.faculty}
-                                 </Text>
-                              ) : null}
-                              <View style={{ marginTop: 8 }}>
-                                 <DropDown
-                                    mode="outlined"
-                                    label="Batch"
-                                    visible={showBatch}
-                                    showDropDown={() => setShowBatch(true)}
-                                    onDismiss={() => setShowBatch(false)}
-                                    list={[
-                                       {
-                                          label: "1st Year",
-                                          value: "first_year",
-                                       },
-                                       {
-                                          label: "2nd Year",
-                                          value: "second_year",
-                                       },
-                                       {
-                                          label: "3rd Year",
-                                          value: "third_year",
-                                       },
-                                       {
-                                          label: "4th Year",
-                                          value: "fourth_year",
-                                       },
-                                    ]}
-                                    value={values.batch}
-                                    onBlur={handleBlur("batch")}
-                                    setValue={handleChange("batch")}
-                                    activeColor={primaryBlue}
-                                    inputProps={{
-                                       outlineColor: lightGray,
-                                       right: (
-                                          <TextInput.Icon
-                                             icon={"chevron-down"}
-                                          />
-                                       ),
-                                    }}
-                                 />
-                                 {errors.batch && touched.batch ? (
-                                    <Text style={styles.errorText}>
-                                       {errors.batch}
-                                    </Text>
-                                 ) : null}
+                              <View style={styles.datesWrapper}>
+                                 <View style={styles.dateContainer}>
+                                    <DatePickerInput
+                                       locale="en"
+                                       label="Start Date"
+                                       value={values.startDate}
+                                       onChange={(date) => setFieldValue('startDate', date)}
+                                       onBlur={handleBlur('startDate')}
+                                       mode="outlined"
+                                       style={styles.dateInput}
+                                       inputMode="start"
+                                       outlineColor={lightGray}
+                                       activeOutlineColor={primaryBlue}
+                                    />
+                                    {errors.startDate && touched.startDate && (
+                                       <Text style={styles.errorText}>{errors.startDate}</Text>
+                                    )}
+                                 </View>
+                                 
+                                 <View style={[styles.dateContainer, { marginTop: 16 }]}>
+                                    <DatePickerInput
+                                       locale="en"
+                                       label="End Date"
+                                       value={values.endDate}
+                                       onChange={(date) => setFieldValue('endDate', date)}
+                                       onBlur={handleBlur('endDate')}
+                                       mode="outlined"
+                                       style={styles.dateInput}
+                                       inputMode="start"
+                                       outlineColor={lightGray}
+                                       activeOutlineColor={primaryBlue}
+                                    />
+                                    {errors.endDate && touched.endDate && (
+                                       <Text style={styles.errorText}>{errors.endDate}</Text>
+                                    )}
+                                 </View>
                               </View>
+
                               <TextInput
                                  mode="outlined"
-                                 label={"Second Member Email"}
-                                 onChangeText={handleChange("second_member")}
-                                 onBlur={handleBlur("second_member")}
-                                 value={values.second_member}
+                                 label={"Количество людей"}
+                                 onChangeText={(text) => {
+                                    handleChange("amount_of_people")(text);
+                                    updateRoommateFields(text);
+                                    // Инициализируем массив roommates нужной длины
+                                    const count = Number(text);
+                                    if (count > 1 && count <= 4) {
+                                       setFieldValue("roommates", new Array(count - 1).fill(''));
+                                    } else {
+                                       setFieldValue("roommates", []);
+                                    }
+                                 }}
+                                 onBlur={handleBlur("amount_of_people")}
+                                 value={values.amount_of_people}
                                  style={{ marginTop: 8 }}
                                  selectionColor={lightGray}
                                  cursorColor={primaryBlue}
                                  outlineColor={lightGray}
                                  activeOutlineColor={primaryBlue}
                                  outlineStyle={{ borderRadius: 4 }}
+                                 keyboardType="numeric"
                               />
-                              {errors.second_member && touched.second_member ? (
+                              {errors.amount_of_people && touched.amount_of_people ? (
                                  <Text style={styles.errorText}>
-                                    {errors.second_member}
+                                    {errors.amount_of_people}
                                  </Text>
                               ) : null}
-                              <TextInput
-                                 mode="outlined"
-                                 label={"Third Member Email"}
-                                 onChangeText={handleChange("third_member")}
-                                 onBlur={handleBlur("third_member")}
-                                 value={values.third_member}
-                                 style={{ marginTop: 8 }}
-                                 selectionColor={lightGray}
-                                 cursorColor={primaryBlue}
-                                 outlineColor={lightGray}
-                                 activeOutlineColor={primaryBlue}
-                                 outlineStyle={{ borderRadius: 4 }}
-                              />
-                              {errors.third_member && touched.third_member ? (
-                                 <Text style={styles.errorText}>
-                                    {errors.third_member}
-                                 </Text>
-                              ) : null}
-                              <TextInput
-                                 mode="outlined"
-                                 label={"Fourth Member Email"}
-                                 onChangeText={handleChange("fourth_member")}
-                                 onBlur={handleBlur("fourth_member")}
-                                 value={values.fourth_member}
-                                 style={{ marginTop: 8 }}
-                                 selectionColor={lightGray}
-                                 cursorColor={primaryBlue}
-                                 outlineColor={lightGray}
-                                 activeOutlineColor={primaryBlue}
-                                 outlineStyle={{ borderRadius: 4 }}
-                              />
-                              {errors.fourth_member && touched.fourth_member ? (
-                                 <Text style={styles.errorText}>
-                                    {errors.fourth_member}
-                                 </Text>
-                              ) : null}
+
+                              {roommateFields.map((_, index) => (
+                                 <View key={index}>
+                                    <TextInput
+                                       mode="outlined"
+                                       label={`Roommate ${index + 1} Email`}
+                                       onChangeText={(text) => {
+                                          const newRoommates = Array.isArray(values.roommates) ? [...values.roommates] : new Array(roommateFields.length).fill('');
+                                          newRoommates[index] = text;
+                                          setFieldValue('roommates', newRoommates);
+                                       }}
+                                       onBlur={handleBlur(`roommates.${index}`)}
+                                       value={values.roommates?.[index] || ''}
+                                       style={{ marginTop: 8 }}
+                                       selectionColor={lightGray}
+                                       cursorColor={primaryBlue}
+                                       outlineColor={lightGray}
+                                       activeOutlineColor={primaryBlue}
+                                       outlineStyle={{ borderRadius: 4 }}
+                                       keyboardType="email-address"
+                                       autoCapitalize="none"
+                                    />
+                                    {errors.roommates?.[index] && touched.roommates?.[index] ? (
+                                       <Text style={styles.errorText}>
+                                          {typeof errors.roommates === 'string' ? errors.roommates : errors.roommates[index]}
+                                       </Text>
+                                    ) : null}
+                                 </View>
+                              ))}
+
                               <TextInput
                                  mode="outlined"
                                  label={"Reason"}
@@ -231,6 +290,7 @@ const Rooms = ({ navigation }) => {
                                     {errors.reason}
                                  </Text>
                               ) : null}
+
                               <Button
                                  mode="contained"
                                  style={{
@@ -238,21 +298,29 @@ const Rooms = ({ navigation }) => {
                                     borderRadius: 9,
                                     marginTop: 10,
                                  }}
+                                 contentStyle={{
+                                    height: 45,
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                 }}
                                  buttonColor={primaryBlue}
                                  labelStyle={{
                                     fontFamily: "fontRegular",
-                                    fontSize: 16,
+                                    fontSize: 16
                                  }}
                                  onPress={handleSubmit}
                                  disabled={
-                                    errors.second_member ||
-                                    errors.third_member ||
-                                    errors.fourth_member
-                                       ? true
-                                       : false
+                                    Object.keys(errors).length > 0 ||
+                                    !values.startDate ||
+                                    !values.endDate ||
+                                    !values.amount_of_people ||
+                                    !values.reason ||
+                                    (Number(values.amount_of_people) > 1 && 
+                                     (!values.roommates || values.roommates.length !== Number(values.amount_of_people) - 1))
                                  }
                               >
-                                 Request Room
+                                 {t("user.booking.newBooking")}
                               </Button>
                            </View>
                         );
@@ -294,6 +362,42 @@ const styles = StyleSheet.create({
       fontFamily: "fontRegular",
       fontSize: 16,
       marginTop: 3,
+   },
+   datesWrapper: {
+      width: '100%',
+      marginBottom: 8,
+   },
+   dateContainer: {
+      width: '100%',
+      minHeight: 80,
+      zIndex: 1,
+   },
+   dateInput: {
+      backgroundColor: white,
+      width: '100%',
+   },
+   modalContainer: {
+      backgroundColor: white,
+      padding: 20,
+      margin: 20,
+      borderRadius: 8,
+   },
+   modalTitle: {
+      fontSize: 18,
+      fontFamily: 'fontBold',
+      marginBottom: 10,
+   },
+   modalText: {
+      fontSize: 16,
+      fontFamily: 'fontRegular',
+      marginBottom: 20,
+   },
+   modalButtons: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+   },
+   modalButton: {
+      minWidth: 100,
    },
 });
 

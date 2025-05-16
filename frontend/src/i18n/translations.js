@@ -74,7 +74,7 @@ export const translations = {
       notifications: "Notifications",
       settings: "Settings",
       booking: {
-        newBooking: "New Booking",
+        newBooking: "New booking",
         bookingHistory: "Booking History",
         upcoming: "Upcoming",
         past: "Past",
@@ -166,7 +166,7 @@ export const translations = {
       notifications: "Уведомления",
       settings: "Настройки",
       booking: {
-        newBooking: "Новое бронирование",
+        newBooking: "Забронировать номер",
         bookingHistory: "История бронирований",
         upcoming: "Предстоящие",
         past: "Прошлые",
