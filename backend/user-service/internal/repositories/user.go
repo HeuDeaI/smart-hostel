@@ -1,13 +1,14 @@
 package repositories
 
 import (
-	"backend/internal/models"
 	"gorm.io/gorm"
+	"user-service/internal/models"
 )
 
 type UserRepository interface {
 	CreateUser(user *models.User) error
 	GetUserByID(id uint) (*models.User, error)
+	GetAllUsers() ([]models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(id uint) error
 }
@@ -28,6 +29,12 @@ func (r *userRepository) GetUserByID(id uint) (*models.User, error) {
 	var user models.User
 	err := r.db.First(&user, id).Error
 	return &user, err
+}
+
+func (r *userRepository) GetAllUsers() ([]models.User, error) {
+	var users []models.User
+	err := r.db.Find(&users).Error
+	return users, err
 }
 
 func (r *userRepository) UpdateUser(user *models.User) error {

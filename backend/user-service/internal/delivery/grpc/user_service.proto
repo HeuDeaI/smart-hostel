@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "internal/pb";
+
+service UserService {
+    rpc CreateUser (CreateUserRequest) returns (UserResponse);
+    rpc GetUser (GetUserRequest) returns (UserResponse);
+    rpc GetAllUsers (GetAllUsersRequest) returns (GetAllUsersResponse);
+    rpc UpdateUser (UpdateUserRequest) returns (UserResponse);
+    rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
+}
+
+message CreateUserRequest {
+    string username = 1;
+}
+
+message GetUserRequest {
+    uint32 id = 1;
+}
+
+message GetAllUsersRequest {}
+
+message UpdateUserRequest {
+    uint32 id = 1;
+    string username = 2;
+}
+
+message DeleteUserRequest {
+    uint32 id = 1;
+}
+
+message UserResponse {
+    uint32 id = 1;
+    string username = 2;
+}
+
+message GetAllUsersResponse {
+    repeated UserResponse users = 1;
+}
+
+message DeleteUserResponse {
+    bool success = 1;
+}

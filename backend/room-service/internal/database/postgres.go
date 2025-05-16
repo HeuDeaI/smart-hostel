@@ -1,9 +1,9 @@
-package repositories
+package database
 
 import (
-	"backend/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"room-service/internal/models"
 )
 
 func InitDB() (*gorm.DB, error) {
@@ -13,7 +13,7 @@ func InitDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Room{})
 
 	return db, nil
 }
