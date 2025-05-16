@@ -48,6 +48,7 @@ func (s *userService) AuthenticateUser(username, password string) (string, error
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": user.Username,
+		"role":     user.Role,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
 
