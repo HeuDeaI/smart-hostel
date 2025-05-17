@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/smart-hostel/backend/internal/booking-service/application"
+	"github.com/smart-hostel/backend/internal/booking-service/domain"
 )
 
 type BookingHandler struct {
-	bookingService *application.BookingService
+	bookingService domain.BookingService
 }
 
-func NewBookingHandler(bookingService *application.BookingService) *BookingHandler {
+func NewBookingHandler(bookingService domain.BookingService) *BookingHandler {
 	return &BookingHandler{bookingService: bookingService}
 }
 

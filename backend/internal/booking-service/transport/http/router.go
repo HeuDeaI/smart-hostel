@@ -2,16 +2,15 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/smart-hostel/backend/internal/booking-service/application"
+	"github.com/smart-hostel/backend/internal/booking-service/domain"
 )
 
-func SetupRouter(bookingService *application.BookingService) *gin.Engine {
+func SetupRouter(bookingService domain.BookingService) *gin.Engine {
 	router := gin.Default()
 
 	bookingHandler := NewBookingHandler(bookingService)
 	roomHandler := NewRoomHandler(bookingService)
 
-	// Booking routes
 	bookings := router.Group("/bookings")
 	{
 		bookings.POST("", bookingHandler.CreateBooking)
@@ -19,7 +18,6 @@ func SetupRouter(bookingService *application.BookingService) *gin.Engine {
 		bookings.DELETE("/:id", bookingHandler.CancelBooking)
 	}
 
-	// Room routes
 	rooms := router.Group("/rooms")
 	{
 		rooms.POST("/seed", roomHandler.SeedRooms)
@@ -27,7 +25,6 @@ func SetupRouter(bookingService *application.BookingService) *gin.Engine {
 		rooms.GET("/:id", roomHandler.GetRoom)
 	}
 
-	// Available rooms route
 	router.GET("/available-rooms", bookingHandler.GetAvailableRooms)
 
 	return router

@@ -8,25 +8,30 @@ import (
 	"github.com/smart-hostel/backend/internal/booking-service/domain"
 )
 
-type BookingService struct {
+type bookingService struct {
 	bookingRepo domain.BookingRepository
 	roomRepo    domain.RoomRepository
 }
 
-func NewBookingService(bookingRepo domain.BookingRepository, roomRepo domain.RoomRepository) *BookingService {
-	return &BookingService{
+func NewBookingService(bookingRepo domain.BookingRepository, roomRepo domain.RoomRepository) domain.BookingService {
+	return &bookingService{
 		bookingRepo: bookingRepo,
 		roomRepo:    roomRepo,
 	}
 }
 
-func (s *BookingService) CreateBooking(ctx context.Context, booking *domain.Booking) error {
+func (s *bookingService) CreateBooking(ctx context.Context, booking *domain.Booking) error {
 	if err := booking.Validate(); err != nil {
 		return err
 	}
 
-	if _, err := s.roomRepo.GetByID(ctx, booking.RoomID); err != nil {
+	room, err := s.roomRepo.GetByID(ctx, booking.RoomID)
+	if err != nil {
 		return err
+	}
+
+	if booking.PersonCount > room.GetMaxCapacity() {
+		return errors.New("number of persons exceeds room capacity")
 	}
 
 	overlapping, err := s.bookingRepo.GetOverlappingBookings(ctx, booking.RoomID, booking.StartDate, booking.EndDate)
@@ -40,7 +45,7 @@ func (s *BookingService) CreateBooking(ctx context.Context, booking *domain.Book
 	return s.bookingRepo.Create(ctx, booking)
 }
 
-func (s *BookingService) GetAvailableRooms(ctx context.Context, startDate, endDate time.Time) ([]*domain.Room, error) {
+func (s *bookingService) GetAvailableRooms(ctx context.Context, startDate, endDate time.Time) ([]*domain.Room, error) {
 	if startDate.After(endDate) {
 		return nil, errors.New("start date cannot be after end date")
 	}
@@ -48,11 +53,11 @@ func (s *BookingService) GetAvailableRooms(ctx context.Context, startDate, endDa
 	return s.roomRepo.GetAvailableRooms(ctx, startDate, endDate)
 }
 
-func (s *BookingService) GetUserBookings(ctx context.Context, userID uint) ([]*domain.Booking, error) {
+func (s *bookingService) GetUserBookings(ctx context.Context, userID uint) ([]*domain.Booking, error) {
 	return s.bookingRepo.GetByUserID(ctx, userID)
 }
 
-func (s *BookingService) CancelBooking(ctx context.Context, bookingID uint) error {
+func (s *bookingService) CancelBooking(ctx context.Context, bookingID uint) error {
 	booking, err := s.bookingRepo.GetByID(ctx, bookingID)
 	if err != nil {
 		return err
@@ -62,19 +67,14 @@ func (s *BookingService) CancelBooking(ctx context.Context, bookingID uint) erro
 	return s.bookingRepo.Update(ctx, booking)
 }
 
-func (s *BookingService) UpdateExpiredBookings(ctx context.Context) error {
-	return s.bookingRepo.UpdateExpiredBookings(ctx)
-}
-
-// Room management methods
-func (s *BookingService) SeedRooms(ctx context.Context) error {
+func (s *bookingService) SeedRooms(ctx context.Context) error {
 	return s.roomRepo.SeedRooms(ctx)
 }
 
-func (s *BookingService) GetRoom(ctx context.Context, id uint) (*domain.Room, error) {
+func (s *bookingService) GetRoom(ctx context.Context, id uint) (*domain.Room, error) {
 	return s.roomRepo.GetByID(ctx, id)
 }
 
-func (s *BookingService) GetAllRooms(ctx context.Context) ([]*domain.Room, error) {
+func (s *bookingService) GetAllRooms(ctx context.Context) ([]*domain.Room, error) {
 	return s.roomRepo.GetAll(ctx)
 }

@@ -14,14 +14,15 @@ const (
 )
 
 type Booking struct {
-	ID        uint
-	UserID    uint
-	RoomID    uint
-	StartDate time.Time
-	EndDate   time.Time
-	Status    BookingStatus
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          uint
+	UserID      uint
+	RoomID      uint
+	StartDate   time.Time
+	EndDate     time.Time
+	Status      BookingStatus
+	PersonCount int
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (b *Booking) Validate() error {
@@ -43,6 +44,10 @@ func (b *Booking) Validate() error {
 
 	if b.EndDate.Before(b.StartDate) {
 		return errors.New("end date cannot be before start date")
+	}
+
+	if b.PersonCount <= 0 {
+		return errors.New("person count must be greater than 0")
 	}
 
 	if b.Status == "" {

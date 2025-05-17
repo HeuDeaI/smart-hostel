@@ -5,14 +5,14 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/smart-hostel/backend/internal/booking-service/application"
+	"github.com/smart-hostel/backend/internal/booking-service/domain"
 )
 
 type RoomHandler struct {
-	bookingService *application.BookingService
+	bookingService domain.BookingService
 }
 
-func NewRoomHandler(bookingService *application.BookingService) *RoomHandler {
+func NewRoomHandler(bookingService domain.BookingService) *RoomHandler {
 	return &RoomHandler{bookingService: bookingService}
 }
 

@@ -8,20 +8,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type RoomRepository struct {
+type roomRepository struct {
 	db *gorm.DB
 }
 
-func NewRoomRepository(db *gorm.DB) *RoomRepository {
-	return &RoomRepository{db: db}
+func NewRoomRepository(db *gorm.DB) domain.RoomRepository {
+	return &roomRepository{db: db}
 }
 
-func (r *RoomRepository) SeedRooms(ctx context.Context) error {
+func (r *roomRepository) SeedRooms(ctx context.Context) error {
 	rooms := domain.SeedRooms()
 	return r.db.WithContext(ctx).Create(&rooms).Error
 }
 
-func (r *RoomRepository) GetByID(ctx context.Context, id uint) (*domain.Room, error) {
+func (r *roomRepository) GetByID(ctx context.Context, id uint) (*domain.Room, error) {
 	var room domain.Room
 	err := r.db.WithContext(ctx).First(&room, id).Error
 	if err != nil {
@@ -30,7 +30,7 @@ func (r *RoomRepository) GetByID(ctx context.Context, id uint) (*domain.Room, er
 	return &room, nil
 }
 
-func (r *RoomRepository) GetAll(ctx context.Context) ([]*domain.Room, error) {
+func (r *roomRepository) GetAll(ctx context.Context) ([]*domain.Room, error) {
 	var rooms []*domain.Room
 	err := r.db.WithContext(ctx).Find(&rooms).Error
 	if err != nil {
@@ -39,20 +39,20 @@ func (r *RoomRepository) GetAll(ctx context.Context) ([]*domain.Room, error) {
 	return rooms, nil
 }
 
-func (r *RoomRepository) Update(ctx context.Context, room *domain.Room) error {
+func (r *roomRepository) Update(ctx context.Context, room *domain.Room) error {
 	return r.db.WithContext(ctx).Save(room).Error
 }
 
-func (r *RoomRepository) Delete(ctx context.Context, id uint) error {
+func (r *roomRepository) Delete(ctx context.Context, id uint) error {
 	return r.db.WithContext(ctx).Delete(&domain.Room{}, id).Error
 }
 
-func (r *RoomRepository) GetAvailableRooms(ctx context.Context, startDate, endDate time.Time) ([]*domain.Room, error) {
+func (r *roomRepository) GetAvailableRooms(ctx context.Context, startDate, endDate time.Time) ([]*domain.Room, error) {
 	var rooms []*domain.Room
 	subQuery := r.db.Model(&domain.Booking{}).
 		Select("room_id").
-		Where("status = ? AND ((start_date <= ? AND end_date >= ?) OR (start_date <= ? AND end_date >= ?))",
-			domain.Active, endDate, startDate, endDate, startDate)
+		Where("status = ? AND start_date < ? AND end_date > ?",
+			domain.Active, endDate, startDate)
 
 	err := r.db.WithContext(ctx).
 		Where("id NOT IN (?)", subQuery).
