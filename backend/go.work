@@ -1,0 +1,7 @@
+go 1.23.2
+
+use (
+	./internal/booking-service
+	./internal/platform
+	./internal/user-service
+)
