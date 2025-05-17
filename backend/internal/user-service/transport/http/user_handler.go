@@ -13,9 +13,7 @@ type UserHandler struct {
 }
 
 func NewUserHandler(userService domain.UserService) *UserHandler {
-	return &UserHandler{
-		userService: userService,
-	}
+	return &UserHandler{userService: userService}
 }
 
 func (h *UserHandler) Register(c *gin.Context) {

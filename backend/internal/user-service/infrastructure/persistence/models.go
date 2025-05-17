@@ -7,34 +7,39 @@ import (
 
 type User struct {
 	gorm.Model
-	FirstName string `gorm:"not null"`
-	LastName  string `gorm:"not null"`
-	Email     string `gorm:"unique;not null"`
-	Phone     string `gorm:"unique;not null"`
-	Password  string `gorm:"not null"`
-	Role      string `gorm:"not null;default:'guest'"`
+	Username string `gorm:"not null"`
+	Email    string `gorm:"unique;not null"`
+	Phone    string `gorm:"unique;not null"`
+	Password string `gorm:"not null"`
+	Role     string `gorm:"not null;default:'guest'"`
 }
 
 func toDomainUser(u *User) *domain.User {
+	role := domain.Guest
+	if u.Role == string(domain.Admin) {
+		role = domain.Admin
+	}
 	return &domain.User{
-		ID:        u.ID,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
-		Email:     u.Email,
-		Phone:     u.Phone,
-		Password:  u.Password,
-		Role:      domain.Role(u.Role),
+		ID:       u.ID,
+		Username: u.Username,
+		Email:    u.Email,
+		Phone:    u.Phone,
+		Password: u.Password,
+		Role:     role,
 	}
 }
 
 func fromDomainUser(u *domain.User) *User {
+	role := string(domain.Guest)
+	if u.Role == domain.Admin {
+		role = string(domain.Admin)
+	}
 	return &User{
-		Model:     gorm.Model{ID: u.ID},
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
-		Email:     u.Email,
-		Phone:     u.Phone,
-		Password:  u.Password,
-		Role:      string(u.Role),
+		Model:    gorm.Model{ID: u.ID},
+		Username: u.Username,
+		Email:    u.Email,
+		Phone:    u.Phone,
+		Password: u.Password,
+		Role:     role,
 	}
 }

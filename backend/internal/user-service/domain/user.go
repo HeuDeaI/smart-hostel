@@ -13,21 +13,20 @@ const (
 )
 
 type User struct {
-	ID        uint
-	FirstName string
-	LastName  string
-	Email     string
-	Phone     string
-	Password  string
-	Role      Role
+	ID       uint
+	Username string
+	Email    string
+	Phone    string
+	Password string
+	Role     Role
 }
 
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 var phoneRegex = regexp.MustCompile(`^\+?[0-9]{10,15}$`)
 
 func (u *User) Validate() error {
-	if u.FirstName == "" || u.LastName == "" {
-		return errors.New("first name and last name cannot be empty")
+	if u.Username == "" {
+		return errors.New("username cannot be empty")
 	}
 
 	if !emailRegex.MatchString(u.Email) {
@@ -42,7 +41,9 @@ func (u *User) Validate() error {
 		return errors.New("password must be at least 8 characters long")
 	}
 
-	if u.Role != Admin && u.Role != Guest {
+	if u.Role == "" {
+		u.Role = Guest
+	} else if u.Role != Admin && u.Role != Guest {
 		return errors.New("invalid role")
 	}
 
