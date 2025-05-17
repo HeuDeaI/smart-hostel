@@ -2,14 +2,15 @@ package auth
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 const userKey = "userClaims"
 
-func GinJWTMiddleware(secret string) gin.HandlerFunc {
+func JWTMiddleware(secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString, err := extractToken(c)
 		if err != nil {
@@ -60,4 +61,29 @@ func GetUserClaims(c *gin.Context) *Claims {
 	}
 
 	return claims
+}
+
+func RequireRole(roles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		claims := GetUserClaims(c)
+		if claims == nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "Unauthorized",
+				"msg":   "No user claims found",
+			})
+			return
+		}
+
+		for _, role := range roles {
+			if claims.Role == role {
+				c.Next()
+				return
+			}
+		}
+
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"error": "Forbidden",
+			"msg":   "Insufficient permissions",
+		})
+	}
 }

@@ -15,14 +15,14 @@ func NewUserRepository(db *gorm.DB) domain.UserRepository {
 	return &userRepository{db: db}
 }
 
-func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
+func (r *userRepository) Create(ctx context.Context, user *domain.User) (*domain.User, error) {
 	userModel := fromDomainUser(user)
 	result := r.db.WithContext(ctx).Create(userModel)
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
 	*user = *toDomainUser(userModel)
-	return nil
+	return user, nil
 }
 
 func (r *userRepository) FindByID(ctx context.Context, id uint) (*domain.User, error) {
@@ -67,14 +67,14 @@ func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 	return count > 0, nil
 }
 
-func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
+func (r *userRepository) Update(ctx context.Context, user *domain.User) (*domain.User, error) {
 	userModel := fromDomainUser(user)
 	result := r.db.WithContext(ctx).Save(userModel)
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
 	*user = *toDomainUser(userModel)
-	return nil
+	return user, nil
 }
 
 func (r *userRepository) Delete(ctx context.Context, id uint) error {

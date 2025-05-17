@@ -2,6 +2,8 @@ package auth
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -17,9 +19,16 @@ func ValidateToken(tokenString, secret string) (*Claims, error) {
 		},
 	)
 
+	if err != nil {
+		return nil, err
+	}
+
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		if time.Now().After(claims.ExpiresAt.Time) {
+			return nil, fmt.Errorf("token expired")
+		}
 		return claims, nil
 	}
 
-	return nil, err
+	return nil, fmt.Errorf("invalid token")
 }
