@@ -1,12 +1,40 @@
 import axios from "axios";
-import { API_URL } from "../config/BaseUrl";
+import { baseUrl } from "../config/BaseUrl";
 
-export const getRoomInfo = async (userId) => {
+const API_URL = `${baseUrl}/api/rooms`;
+
+export const getRooms = async () => {
   try {
-    const response = await axios.get(`${API_URL}/rooms/user/${userId}`);
+    const response = await axios.get(API_URL);
     return response.data;
   } catch (error) {
-    console.error("Error fetching room info:", error);
+    throw error;
+  }
+};
+
+export const getRoomInfo = async (roomId) => {
+  try {
+    const response = await axios.get(`${API_URL}/${roomId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateRoom = async (roomId, roomData) => {
+  try {
+    const response = await axios.put(`${API_URL}/${roomId}`, roomData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteRoom = async (roomId) => {
+  try {
+    const response = await axios.delete(`${API_URL}/${roomId}`);
+    return response.data;
+  } catch (error) {
     throw error;
   }
 };
