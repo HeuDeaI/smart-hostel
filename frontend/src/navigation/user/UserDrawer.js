@@ -5,7 +5,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import Dashboard from "../../screens/app/user/Dashboard";
 import Rooms from "../../screens/app/user/Rooms";
-import ControlRoom from "../../screens/app/user/ControlRoom"; 
+import ControlRoom from "../../screens/app/user/ControlRoom";
 import Announcements from "../../screens/app/user/Announcements";
 import Complains from "../../screens/app/user/Complains";
 import Settings from "../../screens/app/user/Settings";
@@ -13,6 +13,10 @@ import Notifications from "../../screens/app/user/Notifications";
 import PaymentReceipts from "../../screens/app/user/PaymentReceipts";
 import HostelRules from "../../screens/app/user/HostelRules";
 import HostelAdministration from "../../screens/app/user/HostelAdmininstration";
+import ChatAI from "../../screens/app/user/ChatAI";
+import OrderFood from "../../screens/app/user/OrderFood";
+import CleanRoom from "../../screens/app/user/CleanRoom";
+import AttractionDetails from "../../screens/app/user/AttractionDetails";
 
 import RoomAcceptance from "../../screens/app/user/rooms/RoomAcceptance";
 import ViewRoomAcceptance from "../../screens/app/user/rooms/ViewRoomAcceptance";
@@ -45,12 +49,13 @@ export const UserDashboard = () => {
         headerShown: false,
       }}
     >
-
-
-
       <DashboardStack.Screen name="UserHome" component={Dashboard} />
       <DashboardStack.Screen name="UserRoomsDashboard" component={UserRooms} />
       <DashboardStack.Screen name="UserControlRoom" component={ControlRoom} />
+      <DashboardStack.Screen name="UserChatAI" component={ChatAI} />
+      <DashboardStack.Screen name="UserOrderFood" component={OrderFood} />
+      <DashboardStack.Screen name="UserCleanRoom" component={CleanRoom} />
+
       <DashboardStack.Screen
         name="UserRoomsAcceptanceDashboard"
         component={RoomAcceptance}
@@ -97,6 +102,14 @@ export const UserDashboard = () => {
       <DashboardStack.Screen
         name="UserNotifications"
         component={UserNotifications}
+      />
+      <DashboardStack.Screen
+        name="AttractionDetails"
+        component={AttractionDetails}
+        options={{
+          headerShown: true,
+          title: "Достопримечательность",
+        }}
       />
     </DashboardStack.Navigator>
   );

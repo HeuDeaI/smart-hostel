@@ -14,14 +14,10 @@ export const AuthProvider = ({ children }) => {
     _id: "test-id",
     full_name: "Test User",
     email: "test@example.com",
-    member_type: "admin",
+    member_type: "user",
     password: "12345", // Пароль (обязательное)
-    batch: "1", // Группа/курс
-    faculty: "rfict", // Факультет
-    member_type: "admin", // Тип пользователя (обязательное, по умолчанию "student")
     mobile_no: "8033434343", // Номер телефона (обязательное)
     registration_no: "test", // Регистрационный номер
-    gender: "male", // Пол (обязательное)
     timestamps: true,
   });
   const [err, setErr] = useState(null);
