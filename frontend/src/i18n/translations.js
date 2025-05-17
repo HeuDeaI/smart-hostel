@@ -2,7 +2,7 @@ export const translations = {
   en: {
     welcome: {
       title: "Welcome!",
-      description: "Awesome hostel management application",
+      description: "Control your room through your smartphone",
       login: "Login",
       signUp: "Sign Up",
     },
@@ -20,6 +20,7 @@ export const translations = {
       signUp: "Sign Up",
       noAccount: "Don't have an account?",
       haveAccount: "Already have an account?",
+      signUpDescription: "Create an account to get started",
     },
     common: {
       success: "Success",
@@ -94,12 +95,12 @@ export const translations = {
   ru: {
     welcome: {
       title: "Добро пожаловать!",
-      description: "Крутое приложение для управления хостелами",
+      description: "Управляйте номером через свой смарфтон",
       login: "Войти",
       signUp: "Регистрация",
     },
     auth: {
-      email: "Email",
+      email: "Почта",
       password: "Пароль",
       fullName: "Полное имя",
       mobileNo: "Номер телефона",
@@ -112,6 +113,7 @@ export const translations = {
       signUp: "Регистрация",
       noAccount: "Нет аккаунта?",
       haveAccount: "Уже есть аккаунт?",
+      signUpDescription: "Создайте аккаунт для начала работы",
     },
     common: {
       success: "Успешно",

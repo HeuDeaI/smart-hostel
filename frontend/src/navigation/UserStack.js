@@ -33,6 +33,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 
 import { AuthContext } from "../context/AuthContext";
+import { LinearGradient } from "expo-linear-gradient";
 
 const Drawer = createDrawerNavigator();
 
@@ -112,9 +113,23 @@ const UserDrawer = () => {
         headerTitleAlign: "center",
         headerTintColor: white,
         headerStyle: {
-          backgroundColor: primaryBlue,
-          borderRadius: 8,
+          backgroundColor: "transparent",
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 0,
         },
+        headerBackground: () => (
+          <LinearGradient
+            colors={["#6a0dad", "#4c449f", "#3b5998"]}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}
+          />
+        ),
         headerTitleStyle: {
           fontFamily: "fontBold",
         },

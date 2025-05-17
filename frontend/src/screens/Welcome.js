@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme, Button } from "react-native-paper";
 import { useTranslation } from "../i18n/I18nProvider";
 
-import welcomeImage from "../../assets/images/welcome.png";
+import welcomeImage from "../../assets/images/logo.png";
 import {
   textLightGray,
   textDarkGray,
