@@ -71,3 +71,30 @@ func (s *BookingService) CancelBooking(ctx context.Context, bookingID uint) erro
 func (s *BookingService) UpdateExpiredBookings(ctx context.Context) error {
 	return s.bookingRepo.UpdateExpiredBookings(ctx)
 }
+
+// Room management methods
+func (s *BookingService) CreateRoom(ctx context.Context, room *domain.Room) error {
+	if err := room.Validate(); err != nil {
+		return err
+	}
+	return s.roomRepo.Create(ctx, room)
+}
+
+func (s *BookingService) GetRoom(ctx context.Context, id uint) (*domain.Room, error) {
+	return s.roomRepo.GetByID(ctx, id)
+}
+
+func (s *BookingService) GetAllRooms(ctx context.Context) ([]*domain.Room, error) {
+	return s.roomRepo.GetAll(ctx)
+}
+
+func (s *BookingService) UpdateRoom(ctx context.Context, room *domain.Room) error {
+	if err := room.Validate(); err != nil {
+		return err
+	}
+	return s.roomRepo.Update(ctx, room)
+}
+
+func (s *BookingService) DeleteRoom(ctx context.Context, id uint) error {
+	return s.roomRepo.Delete(ctx, id)
+}
