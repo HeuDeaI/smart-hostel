@@ -12,12 +12,31 @@ const (
 	Suite  RoomType = "suite"
 )
 
+const (
+	SingleRoomCapacity = 1
+	DoubleRoomCapacity = 2
+	SuiteRoomCapacity  = 4
+)
+
 type Room struct {
 	ID          uint
 	Number      string
 	Type        RoomType
 	PricePerDay float64
 	Description string
+}
+
+func (r *Room) GetMaxCapacity() int {
+	switch r.Type {
+	case Single:
+		return SingleRoomCapacity
+	case Double:
+		return DoubleRoomCapacity
+	case Suite:
+		return SuiteRoomCapacity
+	default:
+		return SingleRoomCapacity
+	}
 }
 
 func (r *Room) Validate() error {

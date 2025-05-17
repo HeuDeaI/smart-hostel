@@ -29,7 +29,7 @@ func main() {
 
 	bookingService := application.NewBookingService(bookingRepo, roomRepo)
 
-	router := http.SetupRouter(bookingService)
+	router := http.SetupRouter(bookingService, "your-secret-key")
 
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
