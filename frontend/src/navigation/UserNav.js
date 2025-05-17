@@ -6,7 +6,9 @@ import { AuthContext } from "../context/AuthContext";
 const UserNav = () => {
   const { userInfo } = useContext(AuthContext);
 
-  return userInfo.member_type === "admin" ? <AppStack /> : <UserStack />;
+  console.log(userInfo);
+
+  return userInfo.role === "admin" ? <AppStack /> : <UserStack />;
   //   return <UserStack />;
 };
 

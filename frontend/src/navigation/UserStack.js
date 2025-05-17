@@ -76,7 +76,7 @@ const UserDrawer = () => {
                           fontSize: 14,
                         }}
                       >
-                        {userInfo.full_name}
+                        {userInfo.username}
                       </Text>
                       <Text
                         style={{
@@ -154,7 +154,7 @@ const UserDrawer = () => {
         name="Home"
         component={UserDashboard}
         options={{
-          headerTitle: "User Dashboard",
+          headerTitle: "Smart Hotel",
           drawerIcon: ({ color, size }) => {
             return <Icon source={"home"} size={size} color={color} />;
           },

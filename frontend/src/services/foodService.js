@@ -3,7 +3,7 @@ import { API_URL } from "../config/BaseUrl";
 
 export const getMenuItems = async () => {
   try {
-    const response = await axios.get(`${API_URL}/menu`);
+    const response = await axios.get(`${baseUrl}/menu`);
     return response.data;
   } catch (error) {
     console.error("Error fetching menu:", error);
@@ -13,7 +13,7 @@ export const getMenuItems = async () => {
 
 export const placeOrder = async (orderData) => {
   try {
-    const response = await axios.post(`${API_URL}/orders`, orderData);
+    const response = await axios.post(`${baseUrl}/orders`, orderData);
     return response.data;
   } catch (error) {
     console.error("Error placing order:", error);

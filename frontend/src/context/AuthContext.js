@@ -11,14 +11,12 @@ export const AuthProvider = ({ children }) => {
   // const [userInfo, setUserInfo] = useState(null);
   const [userToken, setUserToken] = useState("test_token");
   const [userInfo, setUserInfo] = useState({
-    _id: "test-id",
-    full_name: "Test User",
-    email: "test@example.com",
-    member_type: "user",
-    password: "12345", // Пароль (обязательное)
-    mobile_no: "8033434343", // Номер телефона (обязательное)
-    registration_no: "test", // Регистрационный номер
-    timestamps: true,
+    ID: "test-id",
+    Username: "Test User",
+    Email: "test@example.com",
+    Role: "user",
+    Password: "12345", // Пароль (обязательное)
+    Phone: "8033434343", // Номер телефона (обязательное)
   });
   const [err, setErr] = useState(null);
 
@@ -46,15 +44,15 @@ export const AuthProvider = ({ children }) => {
   const login = (email, password) => {
     setIsLoading(true);
     axios
-      .post(`${baseUrl}auth/login`, {
+      .post(`${baseUrl}/login`, {
         email,
         password,
       })
       .then((res) => {
-        setUserInfo(res.data.existUser);
-        setUserToken(res.data.accessToken);
-        AsyncStorage.setItem("userToken", res.data.accessToken);
-        AsyncStorage.setItem("userInfo", JSON.stringify(res.data.existUser));
+        setUserInfo(res.data.user);
+        setUserToken(res.data.token);
+        AsyncStorage.setItem("userToken", res.data.token);
+        AsyncStorage.setItem("userInfo", JSON.stringify(res.data.user));
       })
       .catch((e) => {
         setErr(e);

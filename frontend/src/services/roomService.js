@@ -1,7 +1,7 @@
 import axios from "axios";
 import { baseUrl } from "../config/BaseUrl";
 
-const API_URL = `${baseUrl}/api/rooms`;
+const API_URL = `${baseUrl}/rooms`;
 
 export const getRooms = async () => {
   try {

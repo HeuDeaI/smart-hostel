@@ -31,13 +31,12 @@ const SignUp = ({ navigation }) => {
 
   const handleSignUp = (values) => {
     axios
-      .post(`${baseUrl}auth/register`, {
-        email: values.email,
-        full_name: values.name,
-        password: values.password,
+      .post(`${baseUrl}/register`, {
+        Email: values.email,
+        Username: values.name,
+        Password: values.password,
 
-        mobile_no: values.mobileNo,
-        registration_no: values.regNo,
+        Phone: values.mobileNo,
       })
       .then((res) => {
         console.log(res.data);
@@ -86,8 +85,6 @@ const SignUp = ({ navigation }) => {
                 name: "",
                 mobileNo: "",
                 memberType: "",
-                regNo: "",
-                gender: "",
                 password: "",
               }}
               validationSchema={signUpSchema}

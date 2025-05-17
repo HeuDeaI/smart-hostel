@@ -1,9 +1,9 @@
 import axios from "axios";
-import { API_URL } from "../config/BaseUrl";
+import { baseUrl } from "../config/BaseUrl";
 
 export const requestCleaning = async (roomNumber, userId, notes = "") => {
   try {
-    const response = await axios.post(`${API_URL}/cleaning-requests`, {
+    const response = await axios.post(`${baseUrl}/cleaning-requests`, {
       roomNumber,
       userId,
       notes,
@@ -19,7 +19,7 @@ export const requestCleaning = async (roomNumber, userId, notes = "") => {
 
 export const getCleaningRequests = async (userId) => {
   try {
-    const response = await axios.get(`${API_URL}/cleaning-requests`, {
+    const response = await axios.get(`${baseUrl}/cleaning-requests`, {
       params: { userId },
     });
     return response.data;
@@ -32,7 +32,7 @@ export const getCleaningRequests = async (userId) => {
 export const updateCleaningRequestStatus = async (requestId, status) => {
   try {
     const response = await axios.patch(
-      `${API_URL}/cleaning-requests/${requestId}`,
+      `${baseUrl}/cleaning-requests/${requestId}`,
       {
         status,
       }
@@ -46,7 +46,7 @@ export const updateCleaningRequestStatus = async (requestId, status) => {
 
 export const checkCleaningRequest = async (roomNumber, userId) => {
   const response = await axios.get(
-    `${API_URL}/cleaning/status?roomNumber=${roomNumber}&userId=${userId}`
+    `${baseUrl}/cleaning/status?roomNumber=${roomNumber}&userId=${userId}`
   );
   return response.data.hasActiveRequest; // true/false
 };

@@ -129,6 +129,7 @@ const Dashboard = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [roomInfo, setRoomInfo] = useState({ roomNumber: 0, floor: 0 });
   const [loadingRoomInfo, setLoadingRoomInfo] = useState(true);
+  const [bookingStatus, setBookingStatus] = useState("approved");
 
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -151,11 +152,11 @@ const Dashboard = () => {
 
   //Greeting based on the time of the day
   if (hours < 12) {
-    greet = "Good Morning!";
+    greet = "Доброе утро!";
   } else if (hours < 15) {
-    greet = "Good Afternoon!";
+    greet = "Хорошего дня!";
   } else {
-    greet = "Good Evening!";
+    greet = "Хорошего вечера!";
   }
 
   // Здесь будут данные с бэкенда
@@ -176,10 +177,7 @@ const Dashboard = () => {
       setError(null);
     } catch (err) {
       console.error("Error fetching rent end date:", err);
-      //setError('Failed to fetch rent end date');
-      // Set a default date in case of error (optional)
       setRentEndDate("2025-05-20T12:00:00");
-      console.log(rentEndDate);
     }
   };
 
@@ -187,8 +185,12 @@ const Dashboard = () => {
     try {
       const data = await getRoomInfo(userInfo.id);
       setRoomInfo(data);
+      // Check if user has an approved booking
+      const hasApprovedBooking = data && data.roomNumber && data.floor;
+      setBookingStatus(hasApprovedBooking ? "approved" : "pending");
     } catch (error) {
       console.error("Error fetching room info:", error);
+      //setBookingStatus("pending");
     } finally {
       setLoadingRoomInfo(false);
     }
@@ -198,6 +200,11 @@ const Dashboard = () => {
     fetchRentEndDate();
     fetchRoomInfo();
   }, [userToken, userInfo.id]);
+
+  useEffect(() => {
+    fetchRentEndDate();
+    fetchRoomInfo();
+  }, []);
 
   useEffect(() => {
     if (!rentEndDate) return;
@@ -217,13 +224,8 @@ const Dashboard = () => {
       }
     };
 
-    // Initial calculation
     calculateTimeLeft();
-
-    // Update every second
     const timer = setInterval(calculateTimeLeft, 1000);
-
-    // Cleanup interval on unmount
     return () => clearInterval(timer);
   }, [rentEndDate]);
 
@@ -233,6 +235,326 @@ const Dashboard = () => {
       setRefreshing(false);
     });
   }, []);
+
+  const renderBasicContent = () => (
+    <>
+      <View style={styles.profileDetails}>
+        <Avatar.Image
+          size={75}
+          source={require("../../../../assets/images/profile_pic.png")}
+        />
+        <View style={styles.profileText}>
+          <Text
+            style={{
+              fontFamily: "fontRegular",
+              fontSize: 16,
+              color: textLightGray,
+            }}
+          >
+            {greet}
+          </Text>
+          <Text
+            style={{
+              fontFamily: "fontBold",
+              fontSize: 16,
+              marginTop: -5,
+            }}
+          >
+            {userInfo.username}
+          </Text>
+          {roomInfo && roomInfo.roomNumber && (
+            <View style={styles.roomInfo}>
+              <Icon name="home" size={16} color={textLightGray} />
+              <Text style={styles.roomInfoText}>
+                Комната {roomInfo.roomNumber}, 1 этаж
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
+      {bookingStatus === "approved" ? (
+        <Text style={styles.cardText}></Text>
+      ) : (
+        <View style={styles.quickButtons}>
+          <TouchableRipple
+            onPress={() => navigation.navigate("UserRoomsDashboard")}
+            style={[styles.dashboardCard, { width: "48%", height: 60 }]}
+          >
+            <LinearGradient
+              colors={["#6a0dad", "#4c449f", "#3b5998"]}
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                paddingHorizontal: 15,
+                height: "100%",
+                borderRadius: 12,
+              }}
+            >
+              <Text style={[styles.cardText, { color: white }]}>
+                {t("user.booking.newBooking")}
+              </Text>
+            </LinearGradient>
+          </TouchableRipple>
+
+          <TouchableRipple
+            onPress={() => navigation.navigate("UserRoomsAcceptanceDashboard")}
+            style={[styles.dashboardCard, { width: "48%", height: 60 }]}
+          >
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                paddingHorizontal: 15,
+                height: "100%",
+              }}
+            >
+              <Text style={styles.cardText}>Статус бронирования</Text>
+            </View>
+          </TouchableRipple>
+        </View>
+      )}
+    </>
+  );
+
+  const renderFullContent = () => (
+    <>
+      {renderBasicContent()}
+
+      <View style={styles.quickButtons}>
+        <View style={styles.timeCard}>
+          <Text style={{ fontFamily: "fontBold" }}>
+            До истечения аренды осталось:
+          </Text>
+
+          <View style={styles.timeGrid}>
+            <View style={styles.timeMiniCard}>
+              <Text style={styles.timeValue}>{timeLeft.days}</Text>
+              <Text style={styles.timeLabel}>дней</Text>
+            </View>
+
+            <View style={styles.timeMiniCard}>
+              <Text style={styles.timeValue}>{timeLeft.hours}</Text>
+              <Text style={styles.timeLabel}>часов</Text>
+            </View>
+
+            <View style={styles.timeMiniCard}>
+              <Text style={styles.timeValue}>{timeLeft.minutes}</Text>
+              <Text style={styles.timeLabel}>минут</Text>
+            </View>
+
+            <View style={styles.timeMiniCard}>
+              <Text style={styles.timeValue}>{timeLeft.seconds}</Text>
+              <Text style={styles.timeLabel}>секунд</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.quickButtons}>
+        <View style={styles.recentAnnouncement}>
+          <Text style={{ fontFamily: "fontBold" }}>
+            Текущие комнатные показатели:
+          </Text>
+          <View style={styles.metricsGrid}>
+            <View style={styles.metricCard}>
+              <Image
+                source={require("../../../../assets/images/temperature.png")}
+                style={styles.metricIcon}
+              />
+              <Text style={styles.metricValue}>
+                {roomMetrics.temperature}°C
+              </Text>
+              <Text style={styles.metricLabel}>Температура</Text>
+            </View>
+
+            <View style={styles.metricCard}>
+              <Image
+                source={require("../../../../assets/images/humidity.png")}
+                style={styles.metricIcon}
+              />
+              <Text style={styles.metricValue}>{roomMetrics.humidity}%</Text>
+              <Text style={styles.metricLabel}>Влажность</Text>
+            </View>
+
+            <View style={styles.metricCard}>
+              <Image
+                source={require("../../../../assets/images/pressure.png")}
+                style={styles.metricIcon}
+              />
+              <Text style={styles.metricValue}>{roomMetrics.pressure}</Text>
+              <Text style={styles.metricLabel}>Давление</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.quickButtons}>
+        <TouchableRipple
+          onPress={() => navigation.navigate("UserControlRoom")}
+          style={[styles.dashboardCard, { height: 120 }]}
+        >
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              paddingHorizontal: 15,
+              height: "100%",
+            }}
+          >
+            <Image
+              source={require("../../../../assets/images/access_control.png")}
+              style={[
+                styles.cardImg,
+                { width: 40, height: 40, marginBottom: 10 },
+              ]}
+            />
+            <Text style={styles.cardText}>Управление комнатой</Text>
+          </View>
+        </TouchableRipple>
+
+        <TouchableRipple
+          onPress={() => navigation.navigate("UserChatAI")}
+          style={[styles.dashboardCard, { height: 120, overflow: "hidden" }]}
+        >
+          <AnimatedGradient />
+        </TouchableRipple>
+      </View>
+
+      <View style={styles.quickButtons}>
+        <TouchableRipple
+          onPress={() => navigation.navigate("UserOrderFood")}
+          style={[styles.dashboardCard, { height: 120 }]}
+        >
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              paddingHorizontal: 15,
+              height: "100%",
+            }}
+          >
+            <Image
+              source={require("../../../../assets/images/food_order.png")}
+              style={[
+                styles.cardImg,
+                { width: 40, height: 40, marginBottom: 10 },
+              ]}
+            />
+            <Text style={styles.cardText}>Заказать еду</Text>
+          </View>
+        </TouchableRipple>
+
+        <TouchableRipple
+          onPress={() => navigation.navigate("UserCleanRoom")}
+          style={[styles.dashboardCard, { height: 120 }]}
+        >
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              paddingHorizontal: 15,
+              height: "100%",
+            }}
+          >
+            <Image
+              source={require("../../../../assets/images/clean_room.png")}
+              style={[
+                styles.cardImg,
+                { width: 40, height: 40, marginBottom: 10 },
+              ]}
+            />
+            <Text style={styles.cardText}>Запросить уборку</Text>
+          </View>
+        </TouchableRipple>
+      </View>
+
+      <View style={[styles.quickButtons, { marginBottom: 30 }]}>
+        <TouchableRipple
+          onPress={() => navigation.navigate("UserPaymentReceiptsDashboard")}
+          style={[styles.dashboardMiniCard]}
+        >
+          <View
+            style={{
+              alignItems: "center",
+              paddingHorizontal: 5,
+              paddingVertical: 10,
+              height: "100%",
+              justifyContent: "center",
+            }}
+          >
+            <Image
+              source={require("../../../../assets/images/payment_receipts.png")}
+              style={[styles.miniCardImg]}
+            />
+            <Text style={styles.miniCardText}>Подтвердить оплату</Text>
+          </View>
+        </TouchableRipple>
+
+        <TouchableRipple
+          onPress={() => navigation.navigate("UserComplainsDashboard")}
+          style={[styles.dashboardMiniCard]}
+        >
+          <View
+            style={{
+              alignItems: "center",
+              paddingHorizontal: 5,
+              paddingVertical: 10,
+              height: "100%",
+              justifyContent: "center",
+            }}
+          >
+            <Image
+              source={require("../../../../assets/images/complains.png")}
+              style={[styles.miniCardImg]}
+            />
+            <Text style={styles.miniCardText}>Жалобы</Text>
+          </View>
+        </TouchableRipple>
+
+        <TouchableRipple
+          onPress={() => navigation.navigate("UserAnnouncementsDashboard")}
+          style={[styles.dashboardMiniCard]}
+        >
+          <View
+            style={{
+              alignItems: "center",
+              paddingHorizontal: 5,
+              paddingVertical: 10,
+              height: "100%",
+              justifyContent: "center",
+            }}
+          >
+            <Image
+              source={require("../../../../assets/images/announcements.png")}
+              style={[styles.miniCardImg]}
+            />
+            <Text style={styles.miniCardText}>Объявления</Text>
+          </View>
+        </TouchableRipple>
+
+        <TouchableRipple
+          onPress={() => navigation.navigate("UserHostelRulesDashboard")}
+          style={[styles.dashboardMiniCard]}
+        >
+          <View
+            style={{
+              alignItems: "center",
+              paddingHorizontal: 5,
+              paddingVertical: 10,
+              height: "100%",
+              justifyContent: "center",
+            }}
+          >
+            <Image
+              source={require("../../../../assets/images/hostel_rules.png")}
+              style={[styles.miniCardImg]}
+            />
+            <Text style={styles.miniCardText}>Правила</Text>
+          </View>
+        </TouchableRipple>
+      </View>
+    </>
+  );
 
   return (
     <ScrollView
@@ -245,324 +567,12 @@ const Dashboard = () => {
     >
       <View style={styles.container}>
         <View style={styles.contentContainer}>
-          <View style={styles.profileDetails}>
-            <Avatar.Image
-              size={75}
-              source={require("../../../../assets/images/profile_pic.png")}
-            />
-            <View style={styles.profileText}>
-              <Text
-                style={{
-                  fontFamily: "fontRegular",
-                  fontSize: 16,
-                  color: textLightGray,
-                }}
-              >
-                {greet}
-              </Text>
-              <Text
-                style={{
-                  fontFamily: "fontBold",
-                  fontSize: 16,
-                  marginTop: -5,
-                }}
-              >
-                {userInfo.full_name}
-              </Text>
-              {roomInfo && (
-                <View style={styles.roomInfo}>
-                  <Icon name="home" size={16} color={textLightGray} />
-                  <Text style={styles.roomInfoText}>
-                    Комната {roomInfo.roomNumber}, {roomInfo.floor} этаж
-                  </Text>
-                </View>
-              )}
-            </View>
-          </View>
-
-          <View style={styles.quickButtons}>
-            <TouchableRipple
-              onPress={() => navigation.navigate("UserRoomsDashboard")}
-              style={[styles.dashboardCard, { width: "48%", height: 60 }]}
-            >
-              <LinearGradient
-                colors={["#6a0dad", "#4c449f", "#3b5998"]}
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 15,
-                  height: "100%",
-                  borderRadius: 12,
-                }}
-              >
-                <Text style={[styles.cardText, { color: white }]}>
-                  {t("user.booking.newBooking")}
-                </Text>
-              </LinearGradient>
-            </TouchableRipple>
-
-            <TouchableRipple
-              onPress={() =>
-                navigation.navigate("UserRoomsAcceptanceDashboard")
-              }
-              style={[styles.dashboardCard, { width: "48%", height: 60 }]}
-            >
-              <View
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 15,
-                  height: "100%",
-                }}
-              >
-                <Text style={styles.cardText}>Статус бронирования</Text>
-              </View>
-            </TouchableRipple>
-          </View>
-
-          <View style={styles.quickButtons}>
-            <View style={styles.timeCard}>
-              <Text style={{ fontFamily: "fontBold" }}>
-                До истечения аренды осталось:
-              </Text>
-
-              <View style={styles.timeGrid}>
-                <View style={styles.timeMiniCard}>
-                  <Text style={styles.timeValue}>{timeLeft.days}</Text>
-                  <Text style={styles.timeLabel}>дней</Text>
-                </View>
-
-                <View style={styles.timeMiniCard}>
-                  <Text style={styles.timeValue}>{timeLeft.hours}</Text>
-                  <Text style={styles.timeLabel}>часов</Text>
-                </View>
-
-                <View style={styles.timeMiniCard}>
-                  <Text style={styles.timeValue}>{timeLeft.minutes}</Text>
-                  <Text style={styles.timeLabel}>минут</Text>
-                </View>
-
-                <View style={styles.timeMiniCard}>
-                  <Text style={styles.timeValue}>{timeLeft.seconds}</Text>
-                  <Text style={styles.timeLabel}>секунд</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.quickButtons}>
-            <View style={styles.recentAnnouncement}>
-              <Text style={{ fontFamily: "fontBold" }}>
-                Текущие комнатные показатели:
-              </Text>
-              <View style={styles.metricsGrid}>
-                <View style={styles.metricCard}>
-                  <Image
-                    source={require("../../../../assets/images/temperature.png")}
-                    style={styles.metricIcon}
-                  />
-                  <Text style={styles.metricValue}>
-                    {roomMetrics.temperature}°C
-                  </Text>
-                  <Text style={styles.metricLabel}>Температура</Text>
-                </View>
-
-                <View style={styles.metricCard}>
-                  <Image
-                    source={require("../../../../assets/images/humidity.png")}
-                    style={styles.metricIcon}
-                  />
-                  <Text style={styles.metricValue}>
-                    {roomMetrics.humidity}%
-                  </Text>
-                  <Text style={styles.metricLabel}>Влажность</Text>
-                </View>
-
-                <View style={styles.metricCard}>
-                  <Image
-                    source={require("../../../../assets/images/pressure.png")}
-                    style={styles.metricIcon}
-                  />
-                  <Text style={styles.metricValue}>{roomMetrics.pressure}</Text>
-                  <Text style={styles.metricLabel}>Давление</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.quickButtons}>
-            <TouchableRipple
-              onPress={() => navigation.navigate("UserControlRoom")}
-              style={[styles.dashboardCard, { height: 120 }]}
-            >
-              <View
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 15,
-                  height: "100%",
-                }}
-              >
-                <Image
-                  source={require("../../../../assets/images/access_control.png")}
-                  style={[
-                    styles.cardImg,
-                    { width: 40, height: 40, marginBottom: 10 },
-                  ]}
-                />
-                <Text style={styles.cardText}>Управление комнатой</Text>
-              </View>
-            </TouchableRipple>
-
-            <TouchableRipple
-              onPress={() => navigation.navigate("UserChatAI")}
-              style={[
-                styles.dashboardCard,
-                { height: 120, overflow: "hidden" },
-              ]}
-            >
-              <AnimatedGradient />
-            </TouchableRipple>
-          </View>
-
-          <View style={styles.quickButtons}>
-            <TouchableRipple
-              onPress={() => navigation.navigate("UserOrderFood")}
-              style={[styles.dashboardCard, { height: 120 }]}
-            >
-              <View
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 15,
-                  height: "100%",
-                }}
-              >
-                <Image
-                  source={require("../../../../assets/images/food_order.png")}
-                  style={[
-                    styles.cardImg,
-                    { width: 40, height: 40, marginBottom: 10 },
-                  ]}
-                />
-                <Text style={styles.cardText}>Заказать еду</Text>
-              </View>
-            </TouchableRipple>
-
-            <TouchableRipple
-              onPress={() => navigation.navigate("UserCleanRoom")}
-              style={[styles.dashboardCard, { height: 120 }]}
-            >
-              <View
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 15,
-                  height: "100%",
-                }}
-              >
-                <Image
-                  source={require("../../../../assets/images/clean_room.png")}
-                  style={[
-                    styles.cardImg,
-                    { width: 40, height: 40, marginBottom: 10 },
-                  ]}
-                />
-                <Text style={styles.cardText}>Запросить уборку</Text>
-              </View>
-            </TouchableRipple>
-          </View>
-          <View style={[styles.quickButtons, { marginBottom: 30 }]}>
-            <TouchableRipple
-              onPress={() =>
-                navigation.navigate("UserPaymentReceiptsDashboard")
-              }
-              style={[styles.dashboardMiniCard]}
-            >
-              <View
-                style={{
-                  alignItems: "center",
-                  paddingHorizontal: 5,
-                  paddingVertical: 10,
-                  height: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  source={require("../../../../assets/images/payment_receipts.png")}
-                  style={[styles.miniCardImg]}
-                />
-                <Text style={styles.miniCardText}>Подтвердить оплату</Text>
-              </View>
-            </TouchableRipple>
-
-            <TouchableRipple
-              onPress={() => navigation.navigate("UserComplainsDashboard")}
-              style={[styles.dashboardMiniCard]}
-            >
-              <View
-                style={{
-                  alignItems: "center",
-                  paddingHorizontal: 5,
-                  paddingVertical: 10,
-                  height: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  source={require("../../../../assets/images/complains.png")}
-                  style={[styles.miniCardImg]}
-                />
-                <Text style={styles.miniCardText}>Жалобы</Text>
-              </View>
-            </TouchableRipple>
-
-            <TouchableRipple
-              onPress={() => navigation.navigate("UserAnnouncementsDashboard")}
-              style={[styles.dashboardMiniCard]}
-            >
-              <View
-                style={{
-                  alignItems: "center",
-                  paddingHorizontal: 5,
-                  paddingVertical: 10,
-                  height: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  source={require("../../../../assets/images/announcements.png")}
-                  style={[styles.miniCardImg]}
-                />
-                <Text style={styles.miniCardText}>Объявления</Text>
-              </View>
-            </TouchableRipple>
-
-            <TouchableRipple
-              onPress={() => navigation.navigate("UserHostelRulesDashboard")}
-              style={[styles.dashboardMiniCard]}
-            >
-              <View
-                style={{
-                  alignItems: "center",
-                  paddingHorizontal: 5,
-                  paddingVertical: 10,
-                  height: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  source={require("../../../../assets/images/hostel_rules.png")}
-                  style={[styles.miniCardImg]}
-                />
-                <Text style={styles.miniCardText}>Правила</Text>
-              </View>
-            </TouchableRipple>
-          </View>
+          {bookingStatus === "approved"
+            ? renderFullContent()
+            : renderBasicContent()}
         </View>
       </View>
-
-      <AttractionsSlider />
+      {bookingStatus === "approved" && <AttractionsSlider />}
     </ScrollView>
   );
 };
