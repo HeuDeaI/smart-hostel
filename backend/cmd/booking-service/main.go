@@ -39,8 +39,8 @@ func main() {
 	config.ExposeHeaders = []string{"Content-Length"}
 	router.Use(cors.New(config))
 
-	log.Printf("Booking service starting on %s", "10.65.158.20:8081")
-	if err := router.Run("10.65.158.20:8081"); err != nil {
+	log.Printf("Booking service starting on %s", "10.65.158.20:8082")
+	if err := router.Run("10.65.158.20:8082"); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }

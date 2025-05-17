@@ -16,8 +16,9 @@ func NewRoomRepository(db *gorm.DB) *RoomRepository {
 	return &RoomRepository{db: db}
 }
 
-func (r *RoomRepository) Create(ctx context.Context, room *domain.Room) error {
-	return r.db.WithContext(ctx).Create(room).Error
+func (r *RoomRepository) SeedRooms(ctx context.Context) error {
+	rooms := domain.SeedRooms()
+	return r.db.WithContext(ctx).Create(&rooms).Error
 }
 
 func (r *RoomRepository) GetByID(ctx context.Context, id uint) (*domain.Room, error) {
@@ -54,7 +55,7 @@ func (r *RoomRepository) GetAvailableRooms(ctx context.Context, startDate, endDa
 			domain.Active, endDate, startDate, endDate, startDate)
 
 	err := r.db.WithContext(ctx).
-		Where("is_available = ? AND id NOT IN (?)", true, subQuery).
+		Where("id NOT IN (?)", subQuery).
 		Find(&rooms).Error
 	if err != nil {
 		return nil, err

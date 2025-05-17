@@ -22,11 +22,9 @@ func SetupRouter(bookingService *application.BookingService) *gin.Engine {
 	// Room routes
 	rooms := router.Group("/rooms")
 	{
-		rooms.POST("", roomHandler.CreateRoom)
+		rooms.POST("/seed", roomHandler.SeedRooms)
 		rooms.GET("", roomHandler.GetAllRooms)
 		rooms.GET("/:id", roomHandler.GetRoom)
-		rooms.PUT("/:id", roomHandler.UpdateRoom)
-		rooms.DELETE("/:id", roomHandler.DeleteRoom)
 	}
 
 	// Available rooms route

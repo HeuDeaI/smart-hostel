@@ -60,7 +60,6 @@ func (dto *CreateRoomDTO) ToDomain() domain.Room {
 		Type:        domain.RoomType(dto.Type),
 		PricePerDay: dto.PricePerDay,
 		Description: dto.Description,
-		IsAvailable: true,
 	}
 }
 
@@ -70,7 +69,6 @@ type RoomResponseDTO struct {
 	Type        string  `json:"type"`
 	PricePerDay float64 `json:"price_per_day"`
 	Description string  `json:"description"`
-	IsAvailable bool    `json:"is_available"`
 }
 
 func FromDomainRoom(room domain.Room) RoomResponseDTO {
@@ -80,7 +78,6 @@ func FromDomainRoom(room domain.Room) RoomResponseDTO {
 		Type:        string(room.Type),
 		PricePerDay: room.PricePerDay,
 		Description: room.Description,
-		IsAvailable: room.IsAvailable,
 	}
 }
 

@@ -16,10 +16,8 @@ type BookingRepository interface {
 }
 
 type RoomRepository interface {
-	Create(ctx context.Context, room *Room) error
+	SeedRooms(ctx context.Context) error
 	GetByID(ctx context.Context, id uint) (*Room, error)
 	GetAll(ctx context.Context) ([]*Room, error)
-	Update(ctx context.Context, room *Room) error
-	Delete(ctx context.Context, id uint) error
 	GetAvailableRooms(ctx context.Context, startDate, endDate time.Time) ([]*Room, error)
 }

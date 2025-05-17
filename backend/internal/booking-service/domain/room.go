@@ -18,7 +18,6 @@ type Room struct {
 	Type        RoomType
 	PricePerDay float64
 	Description string
-	IsAvailable bool
 }
 
 func (r *Room) Validate() error {
@@ -37,4 +36,45 @@ func (r *Room) Validate() error {
 	}
 
 	return nil
+}
+
+func SeedRooms() []Room {
+	return []Room{
+		{
+			Number:      "101",
+			Type:        Single,
+			PricePerDay: 100.00,
+			Description: "Comfortable single room with a queen-size bed",
+		},
+		{
+			Number:      "102",
+			Type:        Single,
+			PricePerDay: 100.00,
+			Description: "Comfortable single room with a queen-size bed",
+		},
+		{
+			Number:      "201",
+			Type:        Double,
+			PricePerDay: 150.00,
+			Description: "Spacious double room with two queen-size beds",
+		},
+		{
+			Number:      "202",
+			Type:        Double,
+			PricePerDay: 150.00,
+			Description: "Spacious double room with two queen-size beds",
+		},
+		{
+			Number:      "301",
+			Type:        Suite,
+			PricePerDay: 250.00,
+			Description: "Luxury suite with a king-size bed and living area",
+		},
+		{
+			Number:      "302",
+			Type:        Suite,
+			PricePerDay: 250.00,
+			Description: "Luxury suite with a king-size bed and living area",
+		},
+	}
 }
