@@ -1,14 +1,15 @@
 package repositories
 
 import (
-	"gorm.io/gorm"
 	"user-service/internal/models"
+
+	"gorm.io/gorm"
 )
 
 type UserRepository interface {
 	CreateUser(user *models.User) error
 	GetUserByID(id uint) (*models.User, error)
-	GetUserByUsername(username string) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
 	GetAllUsers() ([]models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(id uint) error
@@ -32,9 +33,9 @@ func (r *userRepository) GetUserByID(id uint) (*models.User, error) {
 	return &user, err
 }
 
-func (r *userRepository) GetUserByUsername(username string) (*models.User, error) {
+func (r *userRepository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
-	err := r.db.Where("username = ?", username).First(&user).Error
+	err := r.db.Where("email = ?", email).First(&user).Error
 	return &user, err
 }
 

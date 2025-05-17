@@ -92,7 +92,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 
 func (h *UserHandler) Login(c *gin.Context) {
 	var credentials struct {
-		Username string `json:"username"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
@@ -101,9 +101,9 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.service.AuthenticateUser(credentials.Username, credentials.Password)
+	token, err := h.service.AuthenticateUser(credentials.Email, credentials.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
 

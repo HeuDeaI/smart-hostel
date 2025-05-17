@@ -36,8 +36,8 @@ func (s *userService) CreateUser(user *models.User) error {
 	return s.repo.CreateUser(user)
 }
 
-func (s *userService) AuthenticateUser(username, password string) (string, error) {
-	user, err := s.repo.GetUserByUsername(username)
+func (s *userService) AuthenticateUser(email, password string) (string, error) {
+	user, err := s.repo.GetUserByEmail(email)
 	if err != nil {
 		return "", err
 	}

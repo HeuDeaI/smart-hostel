@@ -1,9 +1,10 @@
 package database
 
 import (
+	"user-service/internal/models"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"user-service/internal/models"
 )
 
 func InitDB() (*gorm.DB, error) {
