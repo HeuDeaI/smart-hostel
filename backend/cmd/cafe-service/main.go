@@ -29,7 +29,7 @@ func main() {
 
 	cafeService := application.NewCafeService(menuRepo, orderRepo)
 
-	router := http.SetupRouter(cafeService)
+	router := http.SetupRouter(cafeService, "your-secret-key")
 
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
